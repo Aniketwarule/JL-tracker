@@ -61,7 +61,7 @@ export default async function PostPage({ params }) {
 
   const author = post.is_anonymous
     ? 'Anonymous'
-    : (post.profiles?.full_name || post.profiles?.username || 'User')
+    : (post.profiles?.full_name || post.profiles?.username || 'Deleted User')
 
   return (
     <div className="container animate-fade-in" style={{ maxWidth: '48rem' }}>

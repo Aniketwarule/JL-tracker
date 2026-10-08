@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { User, Edit, FileText, MessageSquare } from 'lucide-react'
+import { User, Edit, FileText, MessageSquare, AlertTriangle } from 'lucide-react'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/ui/Badge'
-import { timeAgo, formatDate } from '@/lib/utils'
+import { timeAgo, formatDate, getXploreRange, getIPARange } from '@/lib/utils'
 import styles from './page.module.css'
 
 export default function ProfilePage() {
@@ -36,6 +36,27 @@ export default function ProfilePage() {
     const supabase = createClient()
     await supabase.from('jl_entries').update({ is_deleted: true }).eq('id', entry.id)
     setEntry(null)
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!confirm('WARNING: Are you sure you want to permanently delete your account? This will mark all your posts as deleted and remove your profile.')) return
+    
+    setLoading(true)
+    try {
+      const res = await fetch('/api/user/delete', { method: 'POST' })
+      if (res.ok) {
+        // Sign out user locally
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        window.location.href = '/'
+      } else {
+        alert('Failed to delete account.')
+        setLoading(false)
+      }
+    } catch (e) {
+      console.error(e)
+      setLoading(false)
+    }
   }
 
   if (authLoading) {
@@ -73,9 +94,14 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
-        <Link href="/profile/edit" className="btn btn-secondary">
-          <Edit size={16} /> Edit
-        </Link>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2)' }}>
+          <Link href="/profile/edit" className="btn btn-secondary">
+            <Edit size={16} /> Edit
+          </Link>
+          <button className="btn btn-ghost" style={{ color: 'var(--color-danger)', fontSize: '0.875rem', padding: '0.5rem' }} onClick={handleDeleteAccount}>
+            <AlertTriangle size={16} /> Delete Account
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -140,8 +166,8 @@ export default function ProfilePage() {
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--spacing-4)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)' }}>
                   <div>
                     <p className="text-sm"><strong>Domain:</strong> {entry.interview_domain || 'N/A'}</p>
-                    <p className="text-sm"><strong>IPA:</strong> {entry.ipa_status} {entry.ipa_score ? `(${entry.ipa_score}%)` : ''}</p>
-                    <p className="text-sm"><strong>Xplore:</strong> {entry.xplore_points || 0} pts</p>
+                    <p className="text-sm"><strong>IPA:</strong> {entry.ipa_status} {entry.ipa_score != null ? `(${getIPARange(entry.ipa_score)})` : ''}</p>
+                    <p className="text-sm"><strong>Xplore:</strong> {getXploreRange(entry.xplore_points)}</p>
                   </div>
                   <div>
                     <p className="text-sm"><strong>ILP:</strong> {entry.ilp_location || 'N/A'}</p>

@@ -48,18 +48,21 @@ export default function FeedbackButton() {
           bottom: '24px',
           right: '24px',
           borderRadius: 'var(--radius-full)',
-          width: '56px',
-          height: '56px',
-          padding: 0,
+          height: '48px',
+          padding: '0 1.25rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: '8px',
           boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-          zIndex: 50
+          zIndex: 50,
+          fontWeight: 600,
+          letterSpacing: '0.3px'
         }}
         aria-label="Feedback"
       >
-        <MessageSquarePlus size={24} />
+        <MessageSquarePlus size={20} />
+        <span>Feedback & Bugs</span>
       </button>
 
       {isOpen && (

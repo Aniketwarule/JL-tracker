@@ -6,7 +6,7 @@ import VoteButton from './VoteButton'
 import { timeAgo } from '@/lib/utils'
 
 export default function PostCard({ post, categorySlug }) {
-  const author = post.is_anonymous ? 'Anonymous' : (post.profiles?.full_name || post.profiles?.username || 'User')
+  const author = post.is_anonymous ? 'Anonymous' : (post.profiles?.full_name || post.profiles?.username || 'Deleted User')
   const snippet = post.body?.length > 150 ? post.body.slice(0, 150) + '...' : post.body
 
   return (

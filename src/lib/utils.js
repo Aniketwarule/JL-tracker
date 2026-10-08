@@ -70,3 +70,55 @@ export const LOCATIONS = [
   'Bangalore', 'Lucknow', 'Trivandrum', 'Kochi', 'Ahmedabad',
   'Bhubaneswar', 'Guwahati', 'Noida', 'Indore', 'Coimbatore', 'Other'
 ]
+
+/**
+ * Gets initials from a full name (e.g. "Aniket Warule" → "AW")
+ * @param {string} name
+ * @returns {string}
+ */
+export function getInitials(name) {
+  if (!name) return 'XX'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return (parts[0][0] + (parts[0][1] || '')).toUpperCase()
+}
+
+/**
+ * Creates an anonymous display label for JL timeline entries
+ * @param {number} index - sequential number (1-based)
+ * @param {string} fullName - user's real full name for initials
+ * @returns {string}
+ */
+export function getAnonymousLabel(index, fullName) {
+  const initials = getInitials(fullName)
+  return `Anonymous User #${index} (${initials})`
+}
+
+/**
+ * Converts exact Xplore points to a display range
+ * @param {number} points
+ * @returns {string}
+ */
+export function getXploreRange(points) {
+  if (points == null) return 'N/A'
+  if (points < 500) return '< 500'
+  if (points < 1000) return '500 - 1000'
+  if (points < 1500) return '1000 - 1500'
+  if (points < 2000) return '1500 - 2000'
+  return '2000+'
+}
+
+/**
+ * Converts exact IPA score to a display range
+ * @param {number} score
+ * @returns {string}
+ */
+export function getIPARange(score) {
+  if (score == null) return 'N/A'
+  if (score < 40) return '0 - 40%'
+  if (score < 60) return '40 - 60%'
+  if (score < 80) return '60 - 80%'
+  return '80 - 100%'
+}

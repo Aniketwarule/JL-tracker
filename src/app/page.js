@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { connection } from 'next/server'
-import { formatDate } from '@/lib/utils'
+import { formatDate, getAnonymousLabel } from '@/lib/utils'
 import { 
   BarChart3, 
   MessageSquare, 
@@ -201,12 +201,18 @@ export default async function HomePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentJLs.map((jl) => (
-                    <tr key={jl.id}>
-                      <td className="font-semibold">
-                        {jl.profiles?.username || 'Anonymous'}
-                      </td>
-                      <td>
+                  {recentJLs.map((jl, index) => {
+                    const displayName = jl.profiles?.username || ''
+                    // For the home page recent list, we just approximate the index for anonymity
+                    const seqNum = stats.totalEntries - index
+                    const anonLabel = getAnonymousLabel(seqNum, displayName)
+                    
+                    return (
+                      <tr key={jl.id}>
+                        <td className="font-semibold">
+                          {anonLabel}
+                        </td>
+                        <td>
                         <div className="flex items-center gap-2">
                           <MapPin size={14} className="text-muted" />
                           {jl.work_location || 'Unknown'}
@@ -219,7 +225,8 @@ export default async function HomePage() {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
