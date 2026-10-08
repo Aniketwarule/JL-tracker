@@ -110,20 +110,9 @@ export default function Navbar() {
             <MessageSquare size={18} /> Forums
           </Link>
           
-          {user ? (
-            <Link href="/submit" className="btn-outline btn">
-              <FileText size={18} /> Submit JL
-            </Link>
-          ) : (
-            <button className="btn-outline btn" onClick={async () => {
-              await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: `${window.location.origin}/auth/callback?next=/submit` }
-              })
-            }}>
-              <FileText size={18} /> Submit JL
-            </button>
-          )}
+          <Link href="/submit" className="btn-outline btn">
+            <FileText size={18} /> Submit JL
+          </Link>
           
           {user ? (
             <div style={{ position: 'relative' }}>
@@ -212,21 +201,9 @@ export default function Navbar() {
             <MessageSquare size={18} /> Forums
           </Link>
           
-          {user ? (
-            <Link href="/submit" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} onClick={() => setIsMenuOpen(false)}>
-              <FileText size={18} /> Submit JL
-            </Link>
-          ) : (
-            <button className="btn btn-outline" style={{ justifyContent: 'flex-start' }} onClick={async () => {
-              setIsMenuOpen(false)
-              await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: `${window.location.origin}/auth/callback?next=/submit` }
-              })
-            }}>
-              <FileText size={18} /> Submit JL
-            </button>
-          )}
+          <Link href="/submit" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} onClick={() => setIsMenuOpen(false)}>
+            <FileText size={18} /> Submit JL
+          </Link>
           
           {user ? (
             <>

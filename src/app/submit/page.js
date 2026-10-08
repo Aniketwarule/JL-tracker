@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { CheckCircle, AlertTriangle, ArrowRight, ArrowLeft } from 'lucide-react'
+import { CheckCircle, AlertTriangle, ArrowRight, ArrowLeft, Info } from 'lucide-react'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 import { LOCATIONS } from '@/lib/utils'
@@ -23,10 +23,19 @@ export default function SubmitPage() {
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    if (!user) {
+    // If editing, user must be logged in
+    if (isEditing && !authLoading && !user) {
       setChecking(false)
       return
     }
+    
+    // If not logged in and not editing, allow guest submission
+    if (!user && !authLoading) {
+      setChecking(false)
+      return
+    }
+
+    if (!user) return
 
     const checkExisting = async () => {
       const supabase = createClient()
@@ -68,7 +77,7 @@ export default function SubmitPage() {
     }
 
     checkExisting()
-  }, [user, isEditing])
+  }, [user, isEditing, authLoading])
 
   // Form State
   const [form, setForm] = useState({
@@ -92,21 +101,23 @@ export default function SubmitPage() {
     ilp_location: '',
     work_location: '',
     // Extras
-    additional_notes: ''
+    additional_notes: '',
+    // Honeypot (invisible to real users)
+    website_url: ''
   })
 
-  if (authLoading) return <div className="container" style={{ textAlign: 'center', padding: 'var(--spacing-12)' }}>Loading...</div>
-  if (!user) {
+  if (authLoading || checking) return <div className="container" style={{ textAlign: 'center', padding: 'var(--spacing-12)' }}>Loading...</div>
+
+  // Only block if editing and not logged in
+  if (isEditing && !user) {
     return (
       <div className="container" style={{ textAlign: 'center', padding: 'var(--spacing-12)' }}>
         <h2>Sign in required</h2>
-        <p className="text-muted">You must be signed in to submit your JL timeline.</p>
+        <p className="text-muted">You must be signed in to edit your JL timeline.</p>
         <button onClick={() => router.push('/')} className="btn btn-primary" style={{ marginTop: 'var(--spacing-4)' }}>Go Home</button>
       </div>
     )
   }
-
-  if (checking) return <div className="container" style={{ textAlign: 'center', padding: 'var(--spacing-12)' }}>Checking status...</div>
 
   if (hasSubmitted) {
     return (
@@ -133,7 +144,7 @@ export default function SubmitPage() {
         </p>
         <div style={{ display: 'flex', gap: 'var(--spacing-4)', justifyContent: 'center' }}>
           <button onClick={() => router.push('/dashboard')} className="btn btn-primary">Go to Dashboard</button>
-          <button onClick={() => router.push('/profile')} className="btn btn-secondary">View Profile</button>
+          {user && <button onClick={() => router.push('/profile')} className="btn btn-secondary">View Profile</button>}
         </div>
       </div>
     )
@@ -147,31 +158,30 @@ export default function SubmitPage() {
     setSubmitting(true)
     setError('')
 
-    const supabase = createClient()
-    
-    // Convert dates and numbers
-    const payload = {
-      user_id: user.id,
-      interview_date: form.interview_date || null,
-      ol_date: form.ol_date || null,
-      jl_date: form.jl_date || null,
-      onboarding_date: form.onboarding_date || null,
-      batch_year: form.batch_year || null,
-      interview_domain: form.interview_domain || null,
-      stream: form.stream || null,
-      xplore_points: parseInt(form.xplore_points) || 0,
-      ipa_status: form.ipa_status,
-      ipa_score: form.ipa_status === 'Given' && form.ipa_score ? parseFloat(form.ipa_score) : null,
-      campus_type: form.campus_type || null,
-      pref_loc_1: form.pref_loc_1 || null,
-      pref_loc_2: form.pref_loc_2 || null,
-      pref_loc_3: form.pref_loc_3 || null,
-      ilp_location: form.ilp_location || null,
-      work_location: form.work_location || null,
-      additional_notes: form.additional_notes || null
-    }
+    // If editing (user must be logged in), use Supabase client directly
+    if (isEditing && editId && user) {
+      const supabase = createClient()
+      const payload = {
+        user_id: user.id,
+        interview_date: form.interview_date || null,
+        ol_date: form.ol_date || null,
+        jl_date: form.jl_date || null,
+        onboarding_date: form.onboarding_date || null,
+        batch_year: form.batch_year || null,
+        interview_domain: form.interview_domain || null,
+        stream: form.stream || null,
+        xplore_points: parseInt(form.xplore_points) || 0,
+        ipa_status: form.ipa_status,
+        ipa_score: form.ipa_status === 'Given' && form.ipa_score ? parseFloat(form.ipa_score) : null,
+        campus_type: form.campus_type || null,
+        pref_loc_1: form.pref_loc_1 || null,
+        pref_loc_2: form.pref_loc_2 || null,
+        pref_loc_3: form.pref_loc_3 || null,
+        ilp_location: form.ilp_location || null,
+        work_location: form.work_location || null,
+        additional_notes: form.additional_notes || null
+      }
 
-    if (isEditing && editId) {
       const { error: updateErr } = await supabase.from('jl_entries').update(payload).eq('id', editId)
       if (updateErr) {
         setError(updateErr.message)
@@ -179,14 +189,49 @@ export default function SubmitPage() {
       } else {
         setSuccess(true)
       }
-    } else {
-      const { error: insertErr } = await supabase.from('jl_entries').insert(payload)
-      if (insertErr) {
-        setError(insertErr.message)
+      return
+    }
+
+    // New submission (guest or logged in) — use the API route
+    try {
+      const res = await fetch('/api/submit-jl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user?.id || null,
+          interview_date: form.interview_date || null,
+          ol_date: form.ol_date || null,
+          jl_date: form.jl_date || null,
+          onboarding_date: form.onboarding_date || null,
+          batch_year: form.batch_year || null,
+          interview_domain: form.interview_domain || null,
+          stream: form.stream || null,
+          xplore_points: form.xplore_points,
+          ipa_status: form.ipa_status,
+          ipa_score: form.ipa_score,
+          campus_type: form.campus_type || null,
+          pref_loc_1: form.pref_loc_1 || null,
+          pref_loc_2: form.pref_loc_2 || null,
+          pref_loc_3: form.pref_loc_3 || null,
+          ilp_location: form.ilp_location || null,
+          work_location: form.work_location || null,
+          additional_notes: form.additional_notes || null,
+          // Honeypot field (should be empty for real users)
+          website_url: form.website_url
+        })
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Submission failed. Please try again.')
         setSubmitting(false)
       } else {
         setSuccess(true)
       }
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.')
+      setSubmitting(false)
     }
   }
 
@@ -199,6 +244,27 @@ export default function SubmitPage() {
             This submission form is only for candidates who have officially received their JL. 
             If you are still waiting, please check the dashboard to see the latest trends.
           </p>
+          
+          {/* Guest disclaimer */}
+          {!user && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 'var(--spacing-3)', 
+              padding: 'var(--spacing-3) var(--spacing-4)',
+              backgroundColor: 'var(--color-primary-50, #f0f0ff)', 
+              borderRadius: 'var(--radius-md)',
+              marginBottom: 'var(--spacing-6)',
+              textAlign: 'left'
+            }}>
+              <Info size={20} style={{ color: 'var(--color-primary-600)', flexShrink: 0, marginTop: '2px' }} />
+              <p className="text-sm" style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                You are submitting as a guest. Your identity will remain anonymous. 
+                <strong> This entry cannot be edited or deleted later.</strong>
+              </p>
+            </div>
+          )}
+          
           <div style={{ display: 'flex', gap: 'var(--spacing-4)', justifyContent: 'center' }}>
             <button onClick={() => router.push('/dashboard')} className="btn btn-secondary">No, I'm still waiting</button>
             <button onClick={handleNext} className="btn btn-primary">Yes, I received my JL</button>
@@ -369,6 +435,20 @@ export default function SubmitPage() {
               />
             </div>
           )}
+
+          {/* Honeypot field — hidden from real users, bots will fill it */}
+          <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+            <label htmlFor="website_url">Leave this blank</label>
+            <input 
+              type="text" 
+              id="website_url" 
+              name="website_url" 
+              value={form.website_url} 
+              onChange={e => setForm({...form, website_url: e.target.value})} 
+              tabIndex={-1} 
+              autoComplete="off" 
+            />
+          </div>
 
           {/* Nav Buttons */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--spacing-8)' }}>

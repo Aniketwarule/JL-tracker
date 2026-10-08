@@ -18,7 +18,6 @@ export default async function HomePage() {
   await connection()
   
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
   // Try to fetch basic stats, fallback to 0s
   let stats = {
@@ -90,7 +89,7 @@ export default async function HomePage() {
             share timelines, and stay updated on the latest trends across locations.
           </p>
           <div className={styles.heroActions}>
-            <HeroSubmitButton user={user} />
+            <HeroSubmitButton />
             <Link href="/dashboard" className="btn btn-secondary">
               View Dashboard
             </Link>
@@ -246,7 +245,7 @@ export default async function HomePage() {
             Join hundreds of other candidates in building the most accurate TCS 2026 JL tracker.
           </p>
           <div className="flex justify-center gap-4">
-            <HeroSubmitButton user={user} />
+            <HeroSubmitButton />
           </div>
         </div>
       </section>
