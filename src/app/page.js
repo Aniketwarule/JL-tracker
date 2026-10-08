@@ -86,11 +86,14 @@ export default async function HomePage() {
             share timelines, and stay updated on the latest trends across locations.
           </p>
           <div className={styles.heroActions}>
-            <Link href="/dashboard" className="btn btn-primary">
-              View Dashboard <ArrowRight size={18} />
+            <Link href="/submit" className="btn btn-primary" style={{ backgroundColor: 'var(--color-primary-600)' }}>
+              Submit JL Details <ArrowRight size={18} />
+            </Link>
+            <Link href="/dashboard" className="btn btn-secondary">
+              View Dashboard
             </Link>
             <Link href="/forums" className="btn btn-secondary">
-              Join the Discussion <MessageSquare size={18} />
+              Join Forums
             </Link>
           </div>
         </div>
