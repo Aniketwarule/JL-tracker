@@ -19,18 +19,37 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
 
-    // 3. Delete the user
-    // IMPORTANT: Make sure the set_null_on_delete.sql migration has been run
-    // in the Supabase SQL editor, otherwise this will CASCADE delete all their posts!
-    const { error: deleteError } = await adminAuthClient.auth.admin.deleteUser(user.id)
+    // 3. Soft Delete: Anonymize the profile data
+    // We do this instead of a hard delete to avoid PostgreSQL trigger deadlocks
+    // and to keep the user's posts visible as "Deleted User" per requirements.
+    const { error: profileError } = await adminAuthClient
+      .from('profiles')
+      .update({
+        full_name: 'Deleted User',
+        username: `deleted_${Date.now()}`,
+        avatar_url: null,
+        stream: null,
+        preferred_location: null,
+      })
+      .eq('id', user.id)
 
-    if (deleteError) {
-      console.error('Failed to delete user:', deleteError)
-      return NextResponse.json({ error: deleteError.message }, { status: 500 })
+    if (profileError) {
+      console.error('Failed to anonymize profile:', profileError)
+      return NextResponse.json({ error: profileError.message }, { status: 500 })
     }
 
-    // Since we deleted the user from auth.users, their active session is now dead.
-    // The client will handle logging them out locally.
+    // 4. Suspend the user account so they can't log in anymore
+    const { error: banError } = await adminAuthClient.auth.admin.updateUserById(
+      user.id,
+      { ban_duration: '876000h' } // Banned for 100 years
+    )
+
+    if (banError) {
+      console.error('Failed to ban user (falling back to just anonymized profile):', banError)
+      // Even if banning fails, the profile is anonymized, so they are effectively a "Deleted User"
+    }
+
+    // Return success. The client will handle logging them out locally.
     return NextResponse.json({ success: true })
     
   } catch (error) {

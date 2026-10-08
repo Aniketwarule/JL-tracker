@@ -1,26 +1,34 @@
--- Fix cascading deletes so we can delete users while preserving their posts as "Deleted User"
+-- Bulletproof script to safely change CASCADE to SET NULL
+-- This prevents the "Database Error" caused by trigger deadlocks during deletion
 
--- For forum_posts
-ALTER TABLE forum_posts DROP CONSTRAINT IF EXISTS forum_posts_author_id_fkey;
+DO $$ 
+DECLARE 
+  r RECORD;
+BEGIN
+  FOR r IN (
+    SELECT tc.constraint_name, tc.table_name
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu
+      ON tc.constraint_name = kcu.constraint_name
+    WHERE tc.constraint_type = 'FOREIGN KEY'
+      AND tc.table_name IN ('forum_posts', 'forum_comments', 'jl_entries', 'votes', 'reports')
+      AND kcu.column_name IN ('author_id', 'user_id', 'reporter_id')
+  ) LOOP
+    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' DROP CONSTRAINT ' || quote_ident(r.constraint_name);
+  END LOOP;
+END $$;
+
 ALTER TABLE forum_posts ALTER COLUMN author_id DROP NOT NULL;
-ALTER TABLE forum_posts ADD CONSTRAINT forum_posts_author_id_fkey FOREIGN KEY (author_id) REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE forum_posts ADD FOREIGN KEY (author_id) REFERENCES profiles(id) ON DELETE SET NULL;
 
--- For forum_comments
-ALTER TABLE forum_comments DROP CONSTRAINT IF EXISTS forum_comments_author_id_fkey;
 ALTER TABLE forum_comments ALTER COLUMN author_id DROP NOT NULL;
-ALTER TABLE forum_comments ADD CONSTRAINT forum_comments_author_id_fkey FOREIGN KEY (author_id) REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE forum_comments ADD FOREIGN KEY (author_id) REFERENCES profiles(id) ON DELETE SET NULL;
 
--- For jl_entries
-ALTER TABLE jl_entries DROP CONSTRAINT IF EXISTS jl_entries_user_id_fkey;
 ALTER TABLE jl_entries ALTER COLUMN user_id DROP NOT NULL;
-ALTER TABLE jl_entries ADD CONSTRAINT jl_entries_user_id_fkey FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE jl_entries ADD FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL;
 
--- For votes
-ALTER TABLE votes DROP CONSTRAINT IF EXISTS votes_user_id_fkey;
 ALTER TABLE votes ALTER COLUMN user_id DROP NOT NULL;
-ALTER TABLE votes ADD CONSTRAINT votes_user_id_fkey FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE votes ADD FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE SET NULL;
 
--- For reports
-ALTER TABLE reports DROP CONSTRAINT IF EXISTS reports_reporter_id_fkey;
 ALTER TABLE reports ALTER COLUMN reporter_id DROP NOT NULL;
-ALTER TABLE reports ADD CONSTRAINT reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES profiles(id) ON DELETE SET NULL;
+ALTER TABLE reports ADD FOREIGN KEY (reporter_id) REFERENCES profiles(id) ON DELETE SET NULL;
