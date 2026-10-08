@@ -50,10 +50,12 @@ export default function ProfilePage() {
         await supabase.auth.signOut()
         window.location.href = '/'
       } else {
-        alert('Failed to delete account.')
+        const errorData = await res.json()
+        alert(`Failed to delete account: ${errorData.error}`)
         setLoading(false)
       }
     } catch (e) {
+      alert(`Network error: ${e.message}`)
       console.error(e)
       setLoading(false)
     }
