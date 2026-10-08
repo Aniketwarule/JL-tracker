@@ -6,7 +6,7 @@ import { User, Edit, FileText, MessageSquare } from 'lucide-react'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/lib/supabase/client'
 import Badge from '@/components/ui/Badge'
-import { timeAgo, formatDate, getXploreRange, getIPARange } from '@/lib/utils'
+import { timeAgo, formatDate } from '@/lib/utils'
 import styles from './page.module.css'
 
 export default function ProfilePage() {
@@ -140,8 +140,8 @@ export default function ProfilePage() {
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 'var(--spacing-4)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)' }}>
                   <div>
                     <p className="text-sm"><strong>Domain:</strong> {entry.interview_domain || 'N/A'}</p>
-                    <p className="text-sm"><strong>IPA:</strong> {entry.ipa_status} {entry.ipa_score != null ? `(${getIPARange(entry.ipa_score)})` : ''}</p>
-                    <p className="text-sm"><strong>Xplore:</strong> {getXploreRange(entry.xplore_points)}</p>
+                    <p className="text-sm"><strong>IPA:</strong> {entry.ipa_status} {entry.ipa_score ? `(${entry.ipa_score}%)` : ''}</p>
+                    <p className="text-sm"><strong>Xplore:</strong> {entry.xplore_points || 0} pts</p>
                   </div>
                   <div>
                     <p className="text-sm"><strong>ILP:</strong> {entry.ilp_location || 'N/A'}</p>

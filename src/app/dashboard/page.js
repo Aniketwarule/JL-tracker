@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Calendar, MapPin, GraduationCap, Building2, ChevronDown, ChevronUp, Filter, TrendingUp } from 'lucide-react'
-import { timeAgo, LOCATIONS, formatDate, getAnonymousLabel, getXploreRange, getIPARange, getInitials } from '@/lib/utils'
+import { timeAgo, LOCATIONS, formatDate, anonymizeUser, formatXplorePoints, formatIPAScore } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 import styles from './page.module.css'
@@ -187,25 +187,25 @@ export default function Dashboard() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
-              {entries.map((entry, index) => {
+              {entries.map(entry => {
                 const isExpanded = expandedId === entry.id
-                // Calculate sequential number (oldest is #1)
-                const seqNum = entries.length - index
-                const displayName = entry.profiles?.full_name || entry.profiles?.username || ''
-                const anonLabel = getAnonymousLabel(seqNum, displayName)
                 
                 return (
                   <div key={entry.id} className={`card ${styles.entryCard} ${isExpanded ? styles.expanded : ''}`} onClick={() => toggleExpand(entry.id)}>
                     {/* Preview (Always Visible) */}
                     <div className={styles.entryPreview}>
                       <div className={styles.entryAvatar}>
-                        <span>{getInitials(displayName)[0]}</span>
+                        {entry.profiles?.avatar_url ? (
+                          <img src={entry.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                        ) : (
+                          <span>{entry.profiles?.username?.charAt(0).toUpperCase() || 'U'}</span>
+                        )}
                       </div>
                       
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--spacing-2)' }}>
                           <div>
-                            <span className="font-semibold">{anonLabel}</span>
+                            <span className="font-semibold">{anonymizeUser(entry.user_id, entry.profiles?.full_name || entry.profiles?.username)}</span>
                             <span className="text-muted text-sm ml-2"> got JL on {formatDate(entry.jl_date)}</span>
                           </div>
                           <span className="text-xs text-muted">{timeAgo(entry.created_at)}</span>
@@ -216,9 +216,9 @@ export default function Dashboard() {
                           <span className="badge badge-neutral" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                             <MapPin size={12} /> {entry.work_location || 'Unknown'}
                           </span>
-                          {entry.ipa_score != null && (
+                          {entry.ipa_score && (
                             <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                              <GraduationCap size={12} /> {getIPARange(entry.ipa_score)}
+                              <GraduationCap size={12} /> {formatIPAScore(entry.ipa_score)}
                             </span>
                           )}
                         </div>
@@ -260,8 +260,8 @@ export default function Dashboard() {
                             <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Technical Details</h4>
                             <p className="text-sm"><strong>Domain:</strong> {entry.interview_domain || 'N/A'}</p>
                             <p className="text-sm"><strong>Campus:</strong> {entry.campus_type || 'N/A'}</p>
-                            <p className="text-sm"><strong>Xplore Points:</strong> {getXploreRange(entry.xplore_points)}</p>
-                            <p className="text-sm"><strong>IPA Status:</strong> {entry.ipa_status} {entry.ipa_score != null ? `(${getIPARange(entry.ipa_score)})` : ''}</p>
+                            <p className="text-sm"><strong>Xplore Points:</strong> {formatXplorePoints(entry.xplore_points)}</p>
+                            <p className="text-sm"><strong>IPA Status:</strong> {entry.ipa_status} {entry.ipa_score ? `(${formatIPAScore(entry.ipa_score)})` : ''}</p>
                           </div>
                           <div>
                             <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Locations</h4>

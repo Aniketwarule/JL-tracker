@@ -17,14 +17,13 @@ const FALLBACK_CATEGORIES = [
   { id: '6', name: 'General Q&A', slug: 'general-qa', description: 'Ask anything TCS-related', icon: 'HelpCircle', color: '#4c1d95', post_count: 0 },
 ]
 
-import { Suspense } from 'react'
-
 export const metadata = {
   title: 'Forums — TCS JL Tracker',
   description: 'Discuss with fellow TCS 2026 candidates about joining letters, interviews, and more.'
 }
 
-async function CategoriesGridData() {
+export default async function ForumsPage() {
+  await connection()
   let categories = FALLBACK_CATEGORIES
 
   try {
@@ -45,30 +44,6 @@ async function CategoriesGridData() {
   }
 
   return (
-    <div className={styles.grid}>
-      {categories.map(cat => {
-        const IconComponent = ICON_MAP[cat.icon] || MessageSquare
-        return (
-          <Link href={`/forums/${cat.slug}`} key={cat.id} className={`card ${styles.categoryCard}`}>
-            <div className={styles.categoryIcon} style={{ backgroundColor: cat.color + '15', color: cat.color }}>
-              <IconComponent size={24} />
-            </div>
-            <div>
-              <h3 className={styles.categoryName}>{cat.name}</h3>
-              <p className={styles.categoryDesc}>{cat.description}</p>
-              <span className="text-xs text-muted">{cat.post_count} posts</span>
-            </div>
-          </Link>
-        )
-      })}
-    </div>
-  )
-}
-
-export default async function ForumsPage() {
-  await connection()
-  
-  return (
     <div className="container animate-fade-in">
       <div className={styles.header}>
         <div>
@@ -80,9 +55,23 @@ export default async function ForumsPage() {
         </Link>
       </div>
 
-      <Suspense fallback={<div className={styles.grid} style={{ opacity: 0.5 }}>Loading boards...</div>}>
-        <CategoriesGridData />
-      </Suspense>
+      <div className={styles.grid}>
+        {categories.map(cat => {
+          const IconComponent = ICON_MAP[cat.icon] || MessageSquare
+          return (
+            <Link href={`/forums/${cat.slug}`} key={cat.id} className={`card ${styles.categoryCard}`}>
+              <div className={styles.categoryIcon} style={{ backgroundColor: cat.color + '15', color: cat.color }}>
+                <IconComponent size={24} />
+              </div>
+              <div>
+                <h3 className={styles.categoryName}>{cat.name}</h3>
+                <p className={styles.categoryDesc}>{cat.description}</p>
+                <span className="text-xs text-muted">{cat.post_count} posts</span>
+              </div>
+            </Link>
+          )
+        })}
+      </div>
     </div>
   )
 }

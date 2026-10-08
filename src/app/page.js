@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { connection } from 'next/server'
-import { formatDate, getAnonymousLabel } from '@/lib/utils'
+import { formatDate, anonymizeUser } from '@/lib/utils'
 import { 
   BarChart3, 
   MessageSquare, 
@@ -14,133 +14,64 @@ import {
 } from 'lucide-react'
 import styles from './page.module.css'
 
-import { Suspense } from 'react'
-
-async function StatsBarData() {
-  const supabase = await createClient()
-  let stats = { totalEntries: 0, jlsReceived: 0, citiesTracked: 0, communityMembers: 0 }
-  
-  try {
-    const [
-      { count: totalEntriesCount },
-      { count: jlsReceivedCount },
-      { data: locations },
-      { count: membersCount }
-    ] = await Promise.all([
-      supabase.from('jl_entries').select('*', { count: 'exact', head: true }),
-      supabase.from('jl_entries').select('*', { count: 'exact', head: true }).not('jl_date', 'is', null),
-      supabase.from('jl_entries').select('work_location'),
-      supabase.from('profiles').select('*', { count: 'exact', head: true })
-    ])
-    
-    const uniqueCities = new Set(locations?.map(l => l.work_location).filter(Boolean))
-    stats = {
-      totalEntries: totalEntriesCount || 0,
-      jlsReceived: jlsReceivedCount || 0,
-      citiesTracked: uniqueCities.size || 0,
-      communityMembers: membersCount || 0
-    }
-  } catch (error) {
-    console.error('Stats fetch error:', error)
+export default async function HomePage() {
+  await connection()
+  // Try to fetch basic stats, fallback to 0s
+  let stats = {
+    totalEntries: 0,
+    jlsReceived: 0,
+    citiesTracked: 0,
+    communityMembers: 0
   }
-
-  return (
-    <div className={styles.statsGrid}>
-      <div className={`card ${styles.statCard}`}>
-        <div className={styles.statValue}>{stats.totalEntries}</div>
-        <div className={styles.statLabel}>Total Entries</div>
-      </div>
-      <div className={`card ${styles.statCard}`}>
-        <div className={styles.statValue}>{stats.jlsReceived}</div>
-        <div className={styles.statLabel}>JLs Received</div>
-      </div>
-      <div className={`card ${styles.statCard}`}>
-        <div className={styles.statValue}>{stats.citiesTracked}</div>
-        <div className={styles.statLabel}>Cities Tracked</div>
-      </div>
-      <div className={`card ${styles.statCard}`}>
-        <div className={styles.statValue}>{stats.communityMembers}</div>
-        <div className={styles.statLabel}>Community Members</div>
-      </div>
-    </div>
-  )
-}
-
-async function RecentJLsData() {
-  const supabase = await createClient()
+  
   let recentJLs = []
-  let totalEntries = 0
   
   try {
-    const { count } = await supabase.from('jl_entries').select('*', { count: 'exact', head: true })
-    totalEntries = count || 0
+    const supabase = await createClient()
     
+    // Example queries (assuming typical table structures - adjust later if needed)
+    // 1. Total entries
+    const { count: totalEntriesCount } = await supabase
+      .from('jl_entries')
+      .select('*', { count: 'exact', head: true })
+      
+    // 2. JLs received
+    const { count: jlsReceivedCount } = await supabase
+      .from('jl_entries')
+      .select('*', { count: 'exact', head: true })
+      .not('jl_date', 'is', null)
+      
+    // 3. Cities tracked (unique locations)
+    const { data: locations } = await supabase
+      .from('jl_entries')
+      .select('work_location')
+      
+    const uniqueCities = new Set(locations?.map(l => l.work_location).filter(Boolean))
+    
+    // 4. Community members
+    const { count: membersCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      
+    // 5. Recent JLs
     const { data: recent } = await supabase
       .from('jl_entries')
       .select('id, user_id, work_location, jl_date, stream, profiles(username)')
       .order('jl_date', { ascending: false })
       .limit(5)
       
+    stats = {
+      totalEntries: totalEntriesCount || 0,
+      jlsReceived: jlsReceivedCount || 0,
+      citiesTracked: uniqueCities.size || 0,
+      communityMembers: membersCount || 0
+    }
+    
     recentJLs = recent || []
   } catch (error) {
-    console.error('Recent JLs fetch error:', error)
+    // Silently fail and use fallbacks if Supabase is not configured or error occurs
+    console.error('Supabase fetch error on landing page:', error)
   }
-
-  if (recentJLs.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <FileText size={48} className="text-muted mx-auto mb-4 opacity-50" style={{ margin: '0 auto var(--spacing-4)' }} />
-        <h3 className="font-semibold mb-2">No entries yet</h3>
-        <p className="text-muted">Be the first to share your JL timeline with the community.</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="table-container">
-      <table className="table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Location</th>
-            <th>JL Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recentJLs.map((jl, index) => {
-            const displayName = jl.profiles?.username || ''
-            const seqNum = totalEntries - index
-            const anonLabel = getAnonymousLabel(seqNum, displayName)
-            
-            return (
-              <tr key={jl.id}>
-                <td className="font-semibold">
-                  {anonLabel}
-                </td>
-                <td>
-                <div className="flex items-center gap-2">
-                  <MapPin size={14} className="text-muted" />
-                  {jl.work_location || 'Unknown'}
-                </div>
-              </td>
-              <td>{formatDate(jl.jl_date)}</td>
-              <td>
-                <span className="badge badge-success flex items-center gap-2 w-fit">
-                  <CheckCircle size={12} /> Received
-                </span>
-              </td>
-            </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-export default async function HomePage() {
-  await connection()
 
   return (
     <div className="animate-fade-in">
@@ -168,9 +99,24 @@ export default async function HomePage() {
       {/* Stats Bar */}
       <section className={styles.statsSection}>
         <div className="container">
-          <Suspense fallback={<div className={styles.statsGrid} style={{ opacity: 0.5 }}>Loading stats...</div>}>
-            <StatsBarData />
-          </Suspense>
+          <div className={styles.statsGrid}>
+            <div className={`card ${styles.statCard}`}>
+              <div className={styles.statValue}>{stats.totalEntries}</div>
+              <div className={styles.statLabel}>Total Entries</div>
+            </div>
+            <div className={`card ${styles.statCard}`}>
+              <div className={styles.statValue}>{stats.jlsReceived}</div>
+              <div className={styles.statLabel}>JLs Received</div>
+            </div>
+            <div className={`card ${styles.statCard}`}>
+              <div className={styles.statValue}>{stats.citiesTracked}</div>
+              <div className={styles.statLabel}>Cities Tracked</div>
+            </div>
+            <div className={`card ${styles.statCard}`}>
+              <div className={styles.statValue}>{stats.communityMembers}</div>
+              <div className={styles.statLabel}>Community Members</div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -243,9 +189,47 @@ export default async function HomePage() {
             </p>
           </div>
           
-          <Suspense fallback={<div className="card text-center text-muted" style={{ padding: 'var(--spacing-8)' }}>Loading recent letters...</div>}>
-            <RecentJLsData />
-          </Suspense>
+          {recentJLs.length > 0 ? (
+            <div className="table-container">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Location</th>
+                    <th>JL Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentJLs.map((jl) => (
+                    <tr key={jl.id}>
+                      <td className="font-semibold">
+                        {anonymizeUser(jl.user_id, jl.profiles?.username)}
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={14} className="text-muted" />
+                          {jl.work_location || 'Unknown'}
+                        </div>
+                      </td>
+                      <td>{formatDate(jl.jl_date)}</td>
+                      <td>
+                        <span className="badge badge-success flex items-center gap-2 w-fit">
+                          <CheckCircle size={12} /> Received
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <FileText size={48} className="text-muted mx-auto mb-4 opacity-50" style={{ margin: '0 auto var(--spacing-4)' }} />
+              <h3 className="font-semibold mb-2">No entries yet</h3>
+              <p className="text-muted">Be the first to share your JL timeline with the community.</p>
+            </div>
+          )}
         </div>
       </section>
 

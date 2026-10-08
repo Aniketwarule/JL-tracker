@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
+import { anonymizeUser, formatXplorePoints } from '@/lib/utils';
 
 export default function RecentEntries({ entries, initialVotes }) {
   const [votes, setVotes] = useState(initialVotes || {});
@@ -57,12 +58,12 @@ export default function RecentEntries({ entries, initialVotes }) {
           <tbody>
             {entries.map(entry => (
               <tr key={entry.id}>
-                <td className="font-semibold">{entry.user_name || 'Anonymous'}</td>
+                <td className="font-semibold">{anonymizeUser(entry.user_id, entry.user_name)}</td>
                 <td>{entry.stream}</td>
                 <td>{entry.location}</td>
                 <td>{formatDate(entry.ol_date)}</td>
                 <td>{getStatusBadge(entry.jl_status)}</td>
-                <td>{entry.xplore_points || 0}</td>
+                <td>{formatXplorePoints(entry.xplore_points)}</td>
                 <td>
                   <button 
                     onClick={() => handleUpvote(entry.id)}

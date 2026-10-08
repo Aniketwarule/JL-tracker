@@ -16,7 +16,7 @@ function Comment({ comment, postId, depth = 0 }) {
 
   const author = comment.is_anonymous
     ? 'Anonymous'
-    : (comment.profiles?.full_name || comment.profiles?.username || 'Deleted User')
+    : (comment.profiles?.full_name || comment.profiles?.username || 'User')
 
   const handleReply = async () => {
     if (!replyText.trim()) return
