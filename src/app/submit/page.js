@@ -45,6 +45,7 @@ export default function SubmitPage() {
             ol_date: data.ol_date || '',
             jl_date: data.jl_date || '',
             onboarding_date: data.onboarding_date || '',
+            batch_year: data.batch_year || '',
             interview_domain: data.interview_domain || '',
             stream: data.stream || '',
             xplore_points: data.xplore_points || 0,
@@ -77,6 +78,7 @@ export default function SubmitPage() {
     jl_date: '',
     onboarding_date: '',
     // Details
+    batch_year: '',
     interview_domain: '',
     stream: '',
     xplore_points: 0,
@@ -154,6 +156,7 @@ export default function SubmitPage() {
       ol_date: form.ol_date || null,
       jl_date: form.jl_date || null,
       onboarding_date: form.onboarding_date || null,
+      batch_year: form.batch_year || null,
       interview_domain: form.interview_domain || null,
       stream: form.stream || null,
       xplore_points: parseInt(form.xplore_points) || 0,
@@ -246,6 +249,16 @@ export default function SubmitPage() {
           {/* STEP 2: DETAILS */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-4)' }}>
+              <div className="form-group">
+                <label className="form-label">Batch Year</label>
+                <select className="form-select" value={form.batch_year} onChange={e => setForm({...form, batch_year: e.target.value})} required>
+                  <option value="">Select batch</option>
+                  <option value="2027">2027</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
               <div className="form-group">
                 <label className="form-label">Campus Type</label>
                 <select className="form-select" value={form.campus_type} onChange={e => setForm({...form, campus_type: e.target.value})} required>

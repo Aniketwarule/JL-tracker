@@ -195,11 +195,7 @@ export default function Dashboard() {
                     {/* Preview (Always Visible) */}
                     <div className={styles.entryPreview}>
                       <div className={styles.entryAvatar}>
-                        {entry.profiles?.avatar_url ? (
-                          <img src={entry.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
-                        ) : (
-                          <span>{entry.profiles?.username?.charAt(0).toUpperCase() || 'U'}</span>
-                        )}
+                        <span>{entry.profiles?.full_name ? entry.profiles.full_name.charAt(0).toUpperCase() : 'U'}</span>
                       </div>
                       
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -258,6 +254,7 @@ export default function Dashboard() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-4)', marginTop: 'var(--spacing-6)' }}>
                           <div>
                             <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Technical Details</h4>
+                            <p className="text-sm"><strong>Batch:</strong> {entry.batch_year || 'N/A'}</p>
                             <p className="text-sm"><strong>Domain:</strong> {entry.interview_domain || 'N/A'}</p>
                             <p className="text-sm"><strong>Campus:</strong> {entry.campus_type || 'N/A'}</p>
                             <p className="text-sm"><strong>Xplore Points:</strong> {formatXplorePoints(entry.xplore_points)}</p>
