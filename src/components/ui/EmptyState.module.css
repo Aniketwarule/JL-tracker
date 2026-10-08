@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12) var(--spacing-6);
+  text-align: center;
+}
+
+.iconWrapper {
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-4);
+  opacity: 0.6;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.description {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  max-width: 24rem;
+  line-height: 1.5;
+}

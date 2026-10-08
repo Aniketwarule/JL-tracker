@@ -1,0 +1,150 @@
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8) 0;
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+}
+
+.comment {
+  position: relative;
+}
+
+.threadLine {
+  position: absolute;
+  left: -14px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--color-primary-200);
+  border-radius: 1px;
+}
+
+.commentInner {
+  padding: var(--spacing-3) 0;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-1);
+}
+
+.commentAuthor {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.commentDot {
+  color: var(--color-border-hover);
+  font-size: 0.75rem;
+}
+
+.commentTime {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.collapseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 0;
+}
+
+.collapseBtn:hover {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-secondary);
+}
+
+.commentBody {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-2);
+  white-space: pre-wrap;
+}
+
+.commentActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.replyBtn,
+.flagBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.replyBtn:hover,
+.flagBtn:hover {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-secondary);
+}
+
+.replyForm {
+  margin-top: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.replyFormFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--spacing-2);
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.anonLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.replyFormButtons {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.childrenContainer {
+  margin-top: var(--spacing-1);
+}
+
+@media (max-width: 480px) {
+  .threadLine {
+    left: -10px;
+  }
+
+  .comment {
+    margin-left: 0 !important;
+  }
+}

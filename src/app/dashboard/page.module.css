@@ -1,0 +1,107 @@
+
+.mainLayout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+.entryCard {
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.entryCard:hover {
+  border-color: var(--color-primary-300);
+}
+
+.expanded {
+  border-color: var(--color-primary-400);
+  box-shadow: var(--shadow-md);
+}
+
+.entryPreview {
+  display: flex;
+  padding: var(--spacing-4);
+  gap: var(--spacing-4);
+  align-items: center;
+}
+
+.entryAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.expandIcon {
+  color: var(--color-text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entryDetails {
+  padding: var(--spacing-4);
+  border-top: 1px solid var(--color-border);
+  background-color: #fafafa;
+  animation: slideDown 0.2s ease-out;
+}
+
+.timelineGrid {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: var(--spacing-2);
+}
+
+.timelineGrid::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: var(--color-border);
+  z-index: 1;
+}
+
+.timelineItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  flex: 1;
+}
+
+.timelineDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-primary-500);
+  border: 2px solid white;
+  margin-bottom: 8px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .mainLayout { grid-template-columns: 1fr; }
+  .timelineGrid { flex-direction: column; gap: var(--spacing-4); }
+  .timelineGrid::before { 
+    top: 10px; bottom: 10px; left: 6px; right: auto; width: 2px; height: auto; 
+  }
+  .timelineItem { flex-direction: row; gap: var(--spacing-4); align-items: flex-start; }
+  .timelineDot { margin-bottom: 0; margin-top: 4px; }
+}

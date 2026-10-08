@@ -1,0 +1,111 @@
+.card {
+  display: flex;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-5);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--color-border-hover);
+}
+
+.voteColumn {
+  flex-shrink: 0;
+  padding-top: var(--spacing-1);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--spacing-1);
+  flex-wrap: wrap;
+}
+
+.author {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.dot {
+  color: var(--color-border-hover);
+}
+
+.time {
+  color: var(--color-text-tertiary);
+}
+
+.location {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--color-primary-600);
+  font-weight: 500;
+}
+
+.title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-1);
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.title:hover {
+  color: var(--color-primary-600);
+}
+
+.snippet {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-3);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.commentBtn,
+.reportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-family: inherit;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.commentBtn:hover,
+.reportBtn:hover {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--spacing-3);
+    gap: var(--spacing-3);
+  }
+}
