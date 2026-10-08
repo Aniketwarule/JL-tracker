@@ -8,14 +8,18 @@ import {
   TrendingUp, 
   FileText, 
   ArrowRight, 
-  Users, 
   MapPin, 
   CheckCircle 
 } from 'lucide-react'
+import HeroSubmitButton from '@/components/HeroSubmitButton'
 import styles from './page.module.css'
 
 export default async function HomePage() {
   await connection()
+  
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Try to fetch basic stats, fallback to 0s
   let stats = {
     totalEntries: 0,
@@ -86,9 +90,7 @@ export default async function HomePage() {
             share timelines, and stay updated on the latest trends across locations.
           </p>
           <div className={styles.heroActions}>
-            <Link href="/submit" className="btn btn-primary" style={{ backgroundColor: 'var(--color-primary-600)' }}>
-              Submit JL Details <ArrowRight size={18} />
-            </Link>
+            <HeroSubmitButton user={user} />
             <Link href="/dashboard" className="btn btn-secondary">
               View Dashboard
             </Link>
@@ -244,9 +246,7 @@ export default async function HomePage() {
             Join hundreds of other candidates in building the most accurate TCS 2026 JL tracker.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-              Submit Your Timeline <ArrowRight size={18} />
-            </Link>
+            <HeroSubmitButton user={user} />
           </div>
         </div>
       </section>
