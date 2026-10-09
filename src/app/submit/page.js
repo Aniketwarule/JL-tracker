@@ -81,6 +81,8 @@ export default function SubmitPage() {
 
   // Form State
   const [form, setForm] = useState({
+    // Guest name (only for non-logged-in users)
+    guest_name: '',
     // Dates
     interview_date: '',
     ol_date: '',
@@ -199,6 +201,7 @@ export default function SubmitPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user?.id || null,
+          guest_name: !user ? form.guest_name || null : null,
           interview_date: form.interview_date || null,
           ol_date: form.ol_date || null,
           jl_date: form.jl_date || null,
@@ -293,6 +296,23 @@ export default function SubmitPage() {
           {/* STEP 1: DATES */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-4)' }}>
+              {/* Name field for guest users */}
+              {!user && (
+                <div className="form-group">
+                  <label className="form-label">Your Full Name</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={form.guest_name} 
+                    onChange={e => setForm({...form, guest_name: e.target.value})} 
+                    placeholder="e.g. Rahul Sharma" 
+                    required 
+                  />
+                  <p className="text-xs text-muted" style={{ marginTop: 'var(--spacing-1)' }}>
+                    Your name is used only to show initials (e.g. RS) and prevent duplicate entries. Your full name is <strong>never</strong> displayed publicly.
+                  </p>
+                </div>
+              )}
               <div className="form-group">
                 <label className="form-label">Interview Date</label>
                 <input type="date" className="form-input" value={form.interview_date} onChange={e => setForm({...form, interview_date: e.target.value})} required />

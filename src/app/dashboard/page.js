@@ -195,13 +195,13 @@ export default function Dashboard() {
                     {/* Preview (Always Visible) */}
                     <div className={styles.entryPreview}>
                       <div className={styles.entryAvatar}>
-                        <span>{entry.profiles?.full_name ? entry.profiles.full_name.charAt(0).toUpperCase() : 'U'}</span>
+                        <span>{(entry.profiles?.full_name || entry.guest_name || 'U').charAt(0).toUpperCase()}</span>
                       </div>
                       
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--spacing-2)' }}>
                           <div>
-                            <span className="font-semibold">{anonymizeUser(entry.user_id, entry.profiles?.full_name || entry.profiles?.username)}</span>
+                            <span className="font-semibold">{anonymizeUser(entry.user_id || entry.id, entry.profiles?.full_name || entry.guest_name)}</span>
                             <span className="text-muted text-sm ml-2"> got JL on {formatDate(entry.jl_date)}</span>
                           </div>
                           <span className="text-xs text-muted">{timeAgo(entry.created_at)}</span>

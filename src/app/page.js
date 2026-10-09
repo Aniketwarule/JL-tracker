@@ -59,7 +59,7 @@ export default async function HomePage() {
     // 5. Recent JLs
     const { data: recent } = await supabase
       .from('jl_entries')
-      .select('id, user_id, work_location, jl_date, stream, profiles(username)')
+      .select('id, user_id, guest_name, work_location, jl_date, stream, profiles(username)')
       .order('jl_date', { ascending: false })
       .limit(5)
       
@@ -208,7 +208,7 @@ export default async function HomePage() {
                   {recentJLs.map((jl) => (
                     <tr key={jl.id}>
                       <td className="font-semibold">
-                        {anonymizeUser(jl.user_id, jl.profiles?.username)}
+                        {anonymizeUser(jl.user_id || jl.id, jl.profiles?.username || jl.guest_name)}
                       </td>
                       <td>
                         <div className="flex items-center gap-2">

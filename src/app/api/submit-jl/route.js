@@ -51,6 +51,7 @@ export async function POST(request) {
     // Build payload
     const payload = {
       user_id: body.user_id || null,
+      guest_name: body.guest_name || null,
       interview_date: body.interview_date || null,
       ol_date: body.ol_date || null,
       jl_date: body.jl_date || null,
