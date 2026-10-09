@@ -32,6 +32,41 @@
   gap: var(--spacing-4);
 }
 
+.heroBlocks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  max-width: 480px;
+  margin: var(--spacing-8) auto 0;
+}
+
+.heroBlockCard {
+  width: 100%;
+  background: var(--color-bg-card);
+  padding: var(--spacing-5) var(--spacing-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.heroBlockCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.heroBlockLabel {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
 .statsSection {
   padding: var(--spacing-8) 0;
 }

@@ -88,14 +88,18 @@ export default async function HomePage() {
             A community-driven platform for the TCS 2026 batch to track joining letters, 
             share timelines, and stay updated on the latest trends across locations.
           </p>
-          <div className={styles.heroActions}>
-            <HeroSubmitButton />
-            <Link href="/dashboard" className="btn btn-secondary">
-              View Dashboard
-            </Link>
-            <Link href="/forums" className="btn btn-secondary">
-              Join Forums
-            </Link>
+          <div className={styles.heroBlocks}>
+            <div className={styles.heroBlockCard}>
+              <span className={styles.heroBlockLabel}>Got your Joining letter?</span>
+              <HeroSubmitButton />
+            </div>
+            
+            <div className={styles.heroBlockCard}>
+              <span className={styles.heroBlockLabel}>You are still waiting for Joining letter?</span>
+              <Link href="/dashboard" className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Track the JL <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

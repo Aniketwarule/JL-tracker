@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [filterScore, setFilterScore] = useState('')
   const [filterMonth, setFilterMonth] = useState('')
   const [filterXplore, setFilterXplore] = useState('')
+  const [sortOrder, setSortOrder] = useState('latest')
   
   const [monthOptions, setMonthOptions] = useState([])
   
@@ -38,7 +39,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData()
-  }, [filterCity, filterStream, filterScore, filterMonth, filterXplore])
+  }, [filterCity, filterStream, filterScore, filterMonth, filterXplore, sortOrder])
 
   const fetchData = async () => {
     setLoading(true)
@@ -50,7 +51,7 @@ export default function Dashboard() {
         .from('jl_entries')
         .select('*, profiles(username, full_name, avatar_url)')
         .eq('is_deleted', false)
-        .order('jl_date', { ascending: false })
+        .order('created_at', { ascending: sortOrder === 'oldest' })
         
       if (filterCity) query = query.eq('work_location', filterCity)
       if (filterStream) query = query.eq('stream', filterStream)
@@ -110,15 +111,23 @@ export default function Dashboard() {
               <h3 style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', margin: 0 }}>
                 <Filter size={18} /> Filters
               </h3>
-              {(filterCity || filterStream || filterScore || filterMonth || filterXplore) && (
+              {(filterCity || filterStream || filterScore || filterMonth || filterXplore || sortOrder !== 'latest') && (
                 <button 
                   className="btn btn-ghost" 
                   style={{ padding: '0 var(--spacing-2)', fontSize: '0.875rem', minHeight: 'auto' }}
-                  onClick={() => {setFilterCity(''); setFilterStream(''); setFilterScore(''); setFilterMonth(''); setFilterXplore('');}}
+                  onClick={() => {setFilterCity(''); setFilterStream(''); setFilterScore(''); setFilterMonth(''); setFilterXplore(''); setSortOrder('latest');}}
                 >
                   Reset
                 </button>
               )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label text-xs">Sort Order</label>
+              <select className="form-select text-sm" value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
+                <option value="latest">Latest</option>
+                <option value="oldest">Oldest</option>
+              </select>
             </div>
             
             <div className="form-group">
