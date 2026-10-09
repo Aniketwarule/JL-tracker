@@ -111,7 +111,7 @@ export default function Navbar() {
           </Link>
           
           <Link href="/submit" className="btn-outline btn">
-            <FileText size={18} /> Submit JL
+            <FileText size={18} /> Submit JL Timeline
           </Link>
           
           {user ? (
@@ -202,7 +202,7 @@ export default function Navbar() {
           </Link>
           
           <Link href="/submit" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} onClick={() => setIsMenuOpen(false)}>
-            <FileText size={18} /> Submit JL
+            <FileText size={18} /> Submit JL Timeline
           </Link>
           
           {user ? (
